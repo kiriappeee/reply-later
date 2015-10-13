@@ -18,5 +18,19 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(userToTest.timeZone, timezone(timedelta(hours = 5, minutes = 30)))
         self.assertIsNone(userToTest.userId)
 
+    def test_validUserCanBeSaved(self):
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"saveUser.return_value": 1}
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        self.assertEqual(UserCRUD.saveUser(userToTest, mockUserDataStrategy), {"result": "success", "value": 1})
+
+    def test_invalidUserReturnsError(self):
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"saveUser.return_value": 1}
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        userToTest = User('', '', '', None)
+        self.assertEqual(UserCRUD.saveUser(userToTest, mockUserDataStrategy), {"result": "error", "value": {"tokenError": "Token cannot be empty", "secretError": "Secret cannot be empty", "usernameError": "Username cannot be empty"}})
+
 if __name__ == "__main__":
     unittest.main()
