@@ -70,6 +70,27 @@ class TestReplyCRUD(unittest.TestCase):
         self.assertEqual(ReplyCRUD.cancelReply(replyToUpdate, mockReplyDataStrategy), {"result": "success"})
         self.assertEqual(replyToUpdate.sentStatus, "cancelled")
 
+    def test_repliesCanBeRetrievedByUserId(self):
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replies = [
+                Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1),
+                Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 2)
+                ]
+        mockReplyDataStrategy = Mock()
+        mockReplyDataStrategyAttrs = {"getRepliesByUserId.return_value": replies}
+        mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
+        self.assertEqual(ReplyCRUD.getRepliesByUserId(1, mockReplyDataStrategy), replies)
+
+    def test_repliesCanBeRetrievedByUserIdAndStatus(self):
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replies = [
+                Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1),
+                Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 2)
+                ]
+        mockReplyDataStrategy = Mock()
+        mockReplyDataStrategyAttrs = {"getRepliesByUserIdAndStatus.return_value": replies}
+        mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
+        self.assertEqual(ReplyCRUD.getRepliesByUserIdAndStatus(1, "unsent", mockReplyDataStrategy), replies)
 
 if __name__ == "__main__":
     unittest.main()

@@ -38,6 +38,14 @@ def cancelReply(replyToCancel, replyDataStrategy):
     if cancelResult:
         return {"result": "success"}
 
+def getRepliesByUserId(userId, replyDataStrategy):
+    replies = replyDataStrategy.getRepliesByUserId(userId)
+    return replies
+
+def getRepliesByUserIdAndStatus(userId, status, replyDataStrategy):
+    replies = replyDataStrategy.getRepliesByUserIdAndStatus(userId, status, replyDataStrategy)
+    return replies
+
 def validateReply(replyToValidate):
     currentDateTime = datetime.now(tz=replyToValidate.timeZone)
     if currentDateTime > replyToValidate.scheduledTime:
