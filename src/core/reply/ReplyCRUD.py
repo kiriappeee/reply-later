@@ -14,8 +14,7 @@ def getReplyByReplyId(replyId, replyDataStrategy):
     return replyDataStrategy.getReplyByReplyId(replyId)
 
 def updateReply(replyToUpdate, replyDataStrategy):
-    replyStatus = replyDataStrategy.getReplyByReplyId(replyToUpdate.replyId).sentStatus
-    if replyStatus == "sent":
+    if replyIsPostedAlready(replyToUpdate.replyId, replyDataStrategy):
         return {"result": "error", "value": "Reply has already been sent"}
     
     validationResult = validateReply(replyToUpdate)
@@ -26,7 +25,27 @@ def updateReply(replyToUpdate, replyDataStrategy):
     if updateResult:
         return {"result": "success"}
 
+def cancelReply(replyToCancel, replyDataStrategy):
+    if replyIsPostedAlready(replyToCancel.replyId, replyDataStrategy):
+        return {"result": "error", "value": "Reply has already been sent"}
+
+    validationResult = validateReply(replyToCancel)
+    if validationResult is not None:
+        return {"result": "error", "value": validationResult}
+
+    replyToCancel.sentStatus = "cancelled"
+    cancelResult = replyDataStrategy.cancelReply(replyToCancel)
+    if cancelResult:
+        return {"result": "success"}
+
 def validateReply(replyToValidate):
     currentDateTime = datetime.now(tz=replyToValidate.timeZone)
     if currentDateTime > replyToValidate.scheduledTime:
         return "Scheduled time cannot be earlier than current time"
+
+def replyIsPostedAlready(replyId, replyDataStrategy):
+    replyStatus = replyDataStrategy.getReplyByReplyId(replyId).sentStatus
+    if replyStatus == "sent":
+        return True
+    else:
+        return False

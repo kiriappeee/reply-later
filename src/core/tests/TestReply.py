@@ -58,6 +58,17 @@ class TestReplyCRUD(unittest.TestCase):
         newVersionOfReply.sentStatus = "sent"
         self.assertEqual(ReplyCRUD.updateReply(replyToUpdate, mockReplyDataStrategy), {"result": "error", "value": "Reply has already been sent"})
         
+    def test_repliesCanBeCancelled(self):
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replyToUpdate = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
+        newVersionOfReply = deepcopy(replyToUpdate)
+        mockReplyDataStrategy = Mock()
+        mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": newVersionOfReply,
+                "cancelReply.return_value": True, 
+                }
+        mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
+        self.assertEqual(ReplyCRUD.cancelReply(replyToUpdate, mockReplyDataStrategy), {"result": "success"})
+        self.assertEqual(replyToUpdate.sentStatus, "cancelled")
 
 
 if __name__ == "__main__":
