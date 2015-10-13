@@ -8,10 +8,25 @@ def saveReply(replyToSave, replyDataStrategy):
     saveResult = replyDataStrategy.saveReply(replyToSave)
     if saveResult is None:
         return {}
-    return {"result": "success", 
-            "value": saveResult}
+    return {"result": "success", "value": saveResult}
+
+def getReplyByReplyId(replyId, replyDataStrategy):
+    return replyDataStrategy.getReplyByReplyId(replyId)
+
+def updateReply(replyToUpdate, replyDataStrategy):
+    replyStatus = replyDataStrategy.getReplyByReplyId(replyToUpdate.replyId).sentStatus
+    if replyStatus == "sent":
+        return {"result": "error", "value": "Reply has already been sent"}
+    
+    validationResult = validateReply(replyToUpdate)
+    if validationResult is not None:
+        return {"result": "error", "value": validationResult}
+    
+    updateResult = replyDataStrategy.updateReply(replyToUpdate)
+    if updateResult:
+        return {"result": "success"}
 
 def validateReply(replyToValidate):
     currentDateTime = datetime.now(tz=replyToValidate.timeZone)
-    if currentDateTime >= replyToValidate.scheduledTime:
+    if currentDateTime > replyToValidate.scheduledTime:
         return "Scheduled time cannot be earlier than current time"

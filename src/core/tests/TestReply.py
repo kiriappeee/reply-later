@@ -1,4 +1,5 @@
 import unittest
+from copy import deepcopy
 from unittest.mock import Mock
 from datetime import timezone, timedelta, datetime, date
 from ..reply.Reply import Reply
@@ -33,6 +34,30 @@ class TestReplyCRUD(unittest.TestCase):
         replyToSave = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292)
         mockReplyDataStrategy = Mock()
         self.assertEqual(ReplyCRUD.saveReply(replyToSave, mockReplyDataStrategy), {"result": "error", "value": "Scheduled time cannot be earlier than current time"})
+
+    def test_replyCanBeRetrievedById(self):
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replyToRetrieve = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
+        mockReplyDataStrategy = Mock()
+        mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": replyToRetrieve}
+        mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
+        self.assertEqual(ReplyCRUD.getReplyByReplyId(1, mockReplyDataStrategy), replyToRetrieve)
+        self.assertTrue(mockReplyDataStrategy.getReplyByReplyId.called)
+
+    def test_replyCanBeUpdatedCorrectly(self):
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replyToUpdate = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
+        newVersionOfReply = deepcopy(replyToUpdate)
+        mockReplyDataStrategy = Mock()
+        mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": newVersionOfReply,
+                "updateReply.return_value": True}
+        mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
+        replyToUpdate.message = "@example an updated message"
+        self.assertEqual(ReplyCRUD.updateReply(replyToUpdate, mockReplyDataStrategy), {"result": "success"})
+
+        newVersionOfReply.sentStatus = "sent"
+        self.assertEqual(ReplyCRUD.updateReply(replyToUpdate, mockReplyDataStrategy), {"result": "error", "value": "Reply has already been sent"})
+        
 
 
 if __name__ == "__main__":
