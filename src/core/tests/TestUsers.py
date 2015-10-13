@@ -32,5 +32,16 @@ class TestUsers(unittest.TestCase):
         userToTest = User('', '', '', None)
         self.assertEqual(UserCRUD.saveUser(userToTest, mockUserDataStrategy), {"result": "error", "value": {"tokenError": "Token cannot be empty", "secretError": "Secret cannot be empty", "usernameError": "Username cannot be empty"}})
 
+    def test_userCanBeEdited(self):
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"saveUser.return_value": 1,
+                "updateUser.return_value": True}
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
+        self.assertEqual(UserCRUD.updateUser(userToTest, mockUserDataStrategy), {"result": "success"})
+        userToTest = User('test', '', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
+        self.assertEqual(UserCRUD.updateUser(userToTest, mockUserDataStrategy), {"result": "error", "value": {"tokenError": "Token cannot be empty"}})
+
+
 if __name__ == "__main__":
     unittest.main()

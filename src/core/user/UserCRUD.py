@@ -6,6 +6,13 @@ def saveUser(userToSave, userDataStrategy):
     if saveResult:
         return {"result": "success", "value": saveResult}
 
+def updateUser(userToUpdate, userDataStrategy):
+    validationResult = validateUser(userToUpdate)
+    if validationResult != {}:
+        return {"result": "error", "value": validationResult}
+    if userDataStrategy.updateUser(userToUpdate):
+        return {"result": "success"}
+
 def validateUser(userToValidate):
     errorList = {}
     if userToValidate.username == '' or userToValidate.username is None:
