@@ -1,6 +1,6 @@
 from . import TweetAdapter
 def breakMessage(messageToBreak, tweetId):
-    if len(messageToBreak) < 140:
+    if len(messageToBreak) <= 140:
         return [ messageToBreak ]
     username = TweetAdapter.getUsernameForTweet(tweetId)
     messagesToSend = []
