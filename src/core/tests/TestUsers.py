@@ -42,6 +42,13 @@ class TestUsers(unittest.TestCase):
         userToTest = User('test', '', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
         self.assertEqual(UserCRUD.updateUser(userToTest, mockUserDataStrategy), {"result": "error", "value": {"tokenError": "Token cannot be empty"}})
 
+    def test_userCanBeRetrieved(self):
+        mockUserDataStrategy = Mock()
+        userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
+        mockUserDataStrategyAttrs = {"getUserById.return_value": userToTest
+                }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        self.assertEqual(UserCRUD.getUserById(1, mockUserDataStrategy), userToTest)
 
 if __name__ == "__main__":
     unittest.main()

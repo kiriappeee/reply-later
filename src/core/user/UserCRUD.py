@@ -22,3 +22,6 @@ def validateUser(userToValidate):
     if userToValidate.secretToken == '' or userToValidate.secretToken is None:
         errorList['secretError'] = "Secret cannot be empty"
     return errorList
+
+def getUserById(userId, userDataStrategy):
+    return userDataStrategy.getUserById(userId)
