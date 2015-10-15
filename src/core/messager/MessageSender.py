@@ -6,12 +6,13 @@ from ..data import DataConfig
 def sendMessage(replyId, dataStrategyInitializer):
     DataConfig.initializeDataStrategy(dataStrategyInitializer)
     reply = ReplyCRUD.getReplyByReplyId(replyId, DataConfig.ReplyDataStrategy)
-    messagesToSend = MessageBreaker.breakMessage(reply.message, reply.tweetId)
-    replyIdList = []
+    messagesToSend = MessageBreaker.breakMessage(reply.message, reply.tweetId, reply.userId, DataConfig.UserDataStrategy)
+    tweetIdList = []
+    tweetId = reply.tweetId
     for message in messagesToSend:
-        replyId = TweetAdapter.sendReply(message, replyId)
-        replyIdList.append(replyId)
+        tweetId = TweetAdapter.sendReply(message, tweetId, reply.userId, DataConfig.UserDataStrategy)
+        tweetIdList.append(tweetId)
     reply.sentStatus = "sent"
     ReplyCRUD.saveReply(reply, DataConfig.ReplyDataStrategy)
-    return {"result": "success", "value":{"tweets": replyIdList} }
+    return {"result": "success", "value":{"tweets": tweetIdList} }
 

@@ -1,8 +1,8 @@
 from . import TweetAdapter
-def breakMessage(messageToBreak, tweetId):
+def breakMessage(messageToBreak, tweetId, userId, userDataStrategy):
     if len(messageToBreak) <= 140:
         return [ messageToBreak ]
-    username = TweetAdapter.getUsernameForTweet(tweetId)
+    username = TweetAdapter.getUsernameForTweet(tweetId, userId, userDataStrategy)
     messagesToSend = []
     messagesToSend.append(messageToBreak[:140])
     messageToBreak = "@%s %s"%(username, messageToBreak[140:].lstrip())

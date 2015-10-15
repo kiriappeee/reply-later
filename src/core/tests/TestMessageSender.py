@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from datetime import timezone, timedelta, datetime
 from ..reply.Reply import Reply
 from ..reply import ReplyCRUD
+from ..user.User import User
 from ..messager import TweetAdapter, MessageBreaker, MessageSender
 from ..data import DataConfig
 
@@ -23,22 +24,31 @@ class TestMessageSender(unittest.TestCase):
     """
 
     def test_messageIsBrokenDownCorrectlyBeforeSending(self):
+        user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"getUserById.return_value": user }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
         replyToSend = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
-        self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId), ["@example an example message"])
+        self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy), ["@example an example message"])
 
     @patch.object(TweetAdapter, 'getUsernameForTweet')
     def test_messageIsBrokenDownCorrectlyWhenMoreThan140Chars(self, patchMethod):
         patchMethod.return_value = "example"
-
+        
+        user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"getUserById.return_value": user }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
         replyToSend = Reply(1, 
                 "@example an example message that is just way too long to be kept inside a single tweet. Therefore it will be broken down into lots of little messages each having the example username on top of it. Sounds cool? Keep going! I'd really like to make this message about 3 tweets long so that I can make sure that the module is working properly. Like really well.",
                 d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
 
-        self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId), ["@example an example message that is just way too long to be kept inside a single tweet. Therefore it will be broken down into lots of little",
+        self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy), ["@example an example message that is just way too long to be kept inside a single tweet. Therefore it will be broken down into lots of little",
             "@example messages each having the example username on top of it. Sounds cool? Keep going! I'd really like to make this message about 3",
             "@example tweets long so that I can make sure that the module is working properly. Like really well."])
+        patchMethod.assert_any_call(134953292, 1, mockUserDataStrategy)
 
     @patch.object(TweetAdapter, 'getUsernameForTweet')
     @patch.object(TweetAdapter, 'sendReply')
@@ -50,8 +60,15 @@ class TestMessageSender(unittest.TestCase):
         mockReplyDataStrategy = Mock()
         mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": replyToSend}
         mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
+        user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"getUserById.return_value": user }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         DataConfig.ReplyDataStrategy = mockReplyDataStrategy
+        DataConfig.UserDataStrategy = mockUserDataStrategy
         self.assertEqual(MessageSender.sendMessage(1, ""), {"result": "success", "value": {"tweets": [1234]}})
+        usernameMethod.assert_not_called()
+        sendReplyPatch.assert_called_once_with("@example an example message", 134953292, 1, mockUserDataStrategy)
 
     @patch.object(TweetAdapter, 'getUsernameForTweet')
     @patch.object(TweetAdapter, 'sendReply')
@@ -64,12 +81,24 @@ class TestMessageSender(unittest.TestCase):
                 "@example an example message that is just way too long to be kept inside a single tweet. Therefore it will be broken down into lots of little messages each having the example username on top of it. Sounds cool? Keep going! I'd really like to make this message about 3 tweets long so that I can make sure that the module is working properly. Like really well.",
                 d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
 
+        user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"getUserById.return_value": user }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         mockReplyDataStrategy = Mock()
         mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": replyToSend}
         mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
         DataConfig.ReplyDataStrategy = mockReplyDataStrategy
+        DataConfig.UserDataStrategy = mockUserDataStrategy
         self.assertEqual(MessageSender.sendMessage(1, ""), {"result": "success", "value": {"tweets": [1234, 1235, 1236]}})
-        print(sendReplyPatch.call_args_list)
+        usernameMethod.assert_called_once_with(134953292, 1, mockUserDataStrategy)
+        t1 = "@example an example message that is just way too long to be kept inside a single tweet. Therefore it will be broken down into lots of little"
+        t2 = "@example messages each having the example username on top of it. Sounds cool? Keep going! I'd really like to make this message about 3"
+        t3 = "@example tweets long so that I can make sure that the module is working properly. Like really well."
+        sendReplyPatch.assert_any_call(t1, 134953292, 1, mockUserDataStrategy)
+        sendReplyPatch.assert_any_call(t2, 1234, 1, mockUserDataStrategy)
+        sendReplyPatch.assert_any_call(t3, 1235, 1, mockUserDataStrategy)
+
 
     @patch.object(TweetAdapter, 'sendReply')
     def test_messageStatusIsChangedAndSavedAfterSending(self, sendReplyPatch):
