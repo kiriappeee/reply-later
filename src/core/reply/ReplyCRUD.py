@@ -1,4 +1,6 @@
 from datetime import datetime, timezone, timedelta
+from ..scheduler import Scheduler
+
 def saveReply(replyToSave, replyDataStrategy):
     validationResult = validateReply(replyToSave)
     if validationResult is not None:
@@ -8,6 +10,7 @@ def saveReply(replyToSave, replyDataStrategy):
     saveResult = replyDataStrategy.saveReply(replyToSave)
     if saveResult is None:
         return {}
+    Scheduler.scheduleReply(saveResult, replyToSave.scheduledTime)
     return {"result": "success", "value": saveResult}
 
 def getReplyByReplyId(replyId, replyDataStrategy):
@@ -22,7 +25,12 @@ def updateReply(replyToUpdate, replyDataStrategy):
         return {"result": "error", "value": validationResult}
     
     updateResult = replyDataStrategy.updateReply(replyToUpdate)
+
     if updateResult:
+        if replyToUpdate.sentStatus == "sent":
+            Scheduler.removeReply(replyToUpdate.replyId)
+        else:
+            Scheduler.updateReply(replyToUpdate.replyId, replyToUpdate.scheduledTime)
         return {"result": "success"}
 
 def cancelReply(replyToCancel, replyDataStrategy):
@@ -36,6 +44,7 @@ def cancelReply(replyToCancel, replyDataStrategy):
     replyToCancel.sentStatus = "cancelled"
     cancelResult = replyDataStrategy.cancelReply(replyToCancel)
     if cancelResult:
+        Scheduler.removeReply(replyToCancel.replyId)
         return {"result": "success"}
 
 def getRepliesByUserId(userId, replyDataStrategy):
