@@ -27,6 +27,11 @@ def updateReply(replyId, dateAndTime):
     job.month.on(timeToPost.month)
     cron.write()
 
+def removeReply(replyId):
+    pythonPath, dataStrategyInitializer = getConfig()
+    cron = CronTab(user=True)
+    cron.remove_all(comment=str(replyId))
+    cron.write()
 
 def getConfig():
     config = configparser.ConfigParser()
