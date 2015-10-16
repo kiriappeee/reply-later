@@ -1,11 +1,13 @@
 import unittest
 from unittest.mock import Mock, patch
+import copy
 from datetime import timezone, timedelta, datetime
 from ..reply.Reply import Reply
 from ..reply import ReplyCRUD
 from ..user.User import User
 from ..messager import TweetAdapter, MessageBreaker, MessageSender
 from ..data import DataConfig
+from ..scheduler import Scheduler
 
 class TestMessageSender(unittest.TestCase):
     def setUp(self):
@@ -50,6 +52,7 @@ class TestMessageSender(unittest.TestCase):
             "@example tweets long so that I can make sure that the module is working properly. Like really well."])
         patchMethod.assert_any_call(134953292, 1, mockUserDataStrategy)
 
+        
     @patch.object(TweetAdapter, 'getUsernameForTweet')
     @patch.object(TweetAdapter, 'sendReply')
     def test_messageIsSentCorrectlyWhenUnder140Chars(self, sendReplyPatch, usernameMethod):
@@ -58,7 +61,7 @@ class TestMessageSender(unittest.TestCase):
         d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
         replyToSend = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
         mockReplyDataStrategy = Mock()
-        mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": replyToSend}
+        mockReplyDataStrategyAttrs = {"getReplyByReplyId.side_effect": [copy.deepcopy(replyToSend), copy.deepcopy(replyToSend)]}
         mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
         user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
         mockUserDataStrategy = Mock()
@@ -86,7 +89,7 @@ class TestMessageSender(unittest.TestCase):
         mockUserDataStrategyAttrs = {"getUserById.return_value": user }
         mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         mockReplyDataStrategy = Mock()
-        mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": replyToSend}
+        mockReplyDataStrategyAttrs = {"getReplyByReplyId.side_effect": [copy.deepcopy(replyToSend), copy.deepcopy(replyToSend)]}
         mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
         DataConfig.ReplyDataStrategy = mockReplyDataStrategy
         DataConfig.UserDataStrategy = mockUserDataStrategy
@@ -105,19 +108,36 @@ class TestMessageSender(unittest.TestCase):
         sendReplyPatch.return_value = 1234
         d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
         replyToSend = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
+        repliesToCheck = [copy.deepcopy(replyToSend), copy.deepcopy(replyToSend), copy.deepcopy(replyToSend)]
         mockReplyDataStrategy = Mock()
-        mockReplyDataStrategyAttrs = {"getReplyByReplyId.return_value": replyToSend,
-                "saveReply.return_value": True}
+        mockReplyDataStrategyAttrs = {"getReplyByReplyId.side_effect": repliesToCheck,
+                "updateReply.return_value": True}
         mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
         DataConfig.ReplyDataStrategy = mockReplyDataStrategy
-        with patch.object(ReplyCRUD, 'saveReply', return_value={"result": "success"}) as saveReplyPatch:
+        with patch.object(ReplyCRUD, 'updateReply', return_value={"result": "success"}) as saveReplyPatch:
             self.assertEqual(MessageSender.sendMessage(1, ""), {"result": "success", "value": {"tweets": [1234]}})
-            self.assertEqual(replyToSend.sentStatus, "sent")
-            saveReplyPatch.assert_called_once_with(replyToSend, mockReplyDataStrategy)
+            saveReplyPatch.assert_called_once_with(repliesToCheck[0], mockReplyDataStrategy)
 
         self.assertEqual(MessageSender.sendMessage(1, ""), {"result": "success", "value": {"tweets": [1234]}})
-        self.assertEqual(replyToSend.sentStatus, "sent")
-        mockReplyDataStrategy.saveReply.assert_called_once_with(replyToSend)
+        self.assertEqual(repliesToCheck[1].sentStatus, "sent")
+        mockReplyDataStrategy.updateReply.assert_called_once_with(repliesToCheck[1])
+
+    @patch.object(TweetAdapter, 'sendReply')
+    @patch.object(Scheduler, 'removeReply')
+    def test_messageIsRemovedFromSchedulerAfterSending(self, schedulePatch, sendReplyPatch):
+        sendReplyPatch.return_value = 1234
+        schedulePatch.return_value = None
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replyToSend = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
+        repliesToCheck = [copy.deepcopy(replyToSend), copy.deepcopy(replyToSend), copy.deepcopy(replyToSend)]
+        user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        mockReplyDataStrategy = Mock()
+        mockReplyDataStrategyAttrs = {"getReplyByReplyId.side_effect": repliesToCheck,
+                "updateReply.return_value": True}
+        mockReplyDataStrategy.configure_mock(**mockReplyDataStrategyAttrs)
+        DataConfig.ReplyDataStrategy = mockReplyDataStrategy
+        self.assertEqual(MessageSender.sendMessage(1, ""), {"result": "success", "value": {"tweets": [1234]}})
+        schedulePatch.assert_called_once_with(1)
 
 if __name__ == "__main__":
     unittest.main()

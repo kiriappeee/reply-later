@@ -1,5 +1,6 @@
 from . import TweetAdapter
 from . import MessageBreaker
+from ..scheduler import Scheduler
 from ..reply import ReplyCRUD
 from ..data import DataConfig
 
@@ -13,6 +14,6 @@ def sendMessage(replyId, dataStrategyInitializer):
         tweetId = TweetAdapter.sendReply(message, tweetId, reply.userId, DataConfig.UserDataStrategy)
         tweetIdList.append(tweetId)
     reply.sentStatus = "sent"
-    ReplyCRUD.saveReply(reply, DataConfig.ReplyDataStrategy)
+    ReplyCRUD.updateReply(reply, DataConfig.ReplyDataStrategy)
     return {"result": "success", "value":{"tweets": tweetIdList} }
 
