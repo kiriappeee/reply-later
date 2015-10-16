@@ -9,7 +9,7 @@ from ..messager import TweetAdapter
 from ..user.User import User
 
 
-class TestTweetAdapter(unittest.TestCase):
+class SlowTests(unittest.TestCase):
     def setUp(self):
         PATH_TO_CONFIG = 'src/tweetconfig.ini'
         config = configparser.ConfigParser()
@@ -36,6 +36,12 @@ class TestTweetAdapter(unittest.TestCase):
         print(tweetId)
         self.assertIsNotNone(tweetId)
         self.api.destroy_status(id=tweetId)
+    def test_mentionListCanBeObtained(self):
+        self.assertEqual(len(TweetAdapter.getMentions(1, 30, self.mockUserDataStrategy)),30)
 
+class FastTests(unittest.TestCase):
+
+    def test_canGetGenericAPIObject(self):
+        self.assertIsNotNone(TweetAdapter.createAPIObject())
 if __name__ == "__main__":
     unittest.main()
