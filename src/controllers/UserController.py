@@ -8,12 +8,15 @@ from ..core.user import UserCRUD
 def createUser(accessToken, accessTokenSecret):
     api = TweetAdapter.createAPIObject()
     auth = api.auth
+    print(dir(auth))
+    print(auth)
     auth.set_access_token(accessToken, accessTokenSecret)
+    api = tweepy.API(auth)
     userDetails = api.me()
-    return UserCRUD.saveUser(User(userDetails.username, accessToken, accessTokenSecret, timeZone=timezone(timedelta(hours=0))), DataConfig.UserDataStrategy)
+    return UserCRUD.saveUser(User(userDetails.screen_name, accessToken, accessTokenSecret, timeZone=timezone(timedelta(hours=0))), DataConfig.UserDataStrategy)
 
 def setTimeZone(timezoneForm, userId):
     user = UserCRUD.getUserById(userId, DataConfig.UserDataStrategy)
-    timeZone = timezone(timedelta(hours=timezoneForm['tzhour'], minutes=timezoneForm['tzminute']))
+    timeZone = timezone(timedelta(hours=int(timezoneForm['tzhour']), minutes=int(timezoneForm['tzminute'])))
     user.timeZone = timeZone
     return UserCRUD.updateUser(user, DataConfig.UserDataStrategy)

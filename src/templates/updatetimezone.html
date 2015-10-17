@@ -1,0 +1,50 @@
+{% extends "common/base.html" %}
+{% block title %}Login{% endblock %}
+{% block body %}
+<div class="row">
+    <h1>Edit Your Timezone</h1>
+    <div class="col-lg-6 col-md-offset-3">
+        <form method="POST">
+            <label for="tzhour">Hour</label>
+            <select class="form-control" name="tzhour" id="tzhour">
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>-1</option>
+                <option>-2</option>
+                <option>-3</option>
+                <option>-4</option>
+                <option>-5</option>
+                <option>-6</option>
+                <option>-7</option>
+                <option>-8</option>
+                <option>-9</option>
+                <option>-10</option>
+                <option>-11</option>
+                <option>-12</option>
+            </select>
+            <label for="tzminute">Minutes</label>
+            <select class="form-control" name="tzminute" id="tzminute">
+                <option>0</option>
+                <option>15</option>
+                <option>30</option>
+                <option>-15</option>
+                <option>-30</option>
+            </select>
+            <input type="submit" class="btn btn-primary" value="Save timezone"></input>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -16,6 +16,3 @@ def getAuth(verifier, token):
     print(verifier, token)
     authentications = api.auth.get_access_token(verifier)
     return api.auth.access_token, api.auth.access_token_secret
-
-def authenticateUser():
-    pass
