@@ -1,1 +1,5 @@
 __pycache__
+src/tweetconfig.ini
+src/config.ini
+src/data/sqlite/data.db
+.coverage
