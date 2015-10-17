@@ -11,5 +11,15 @@ if not os.path.exists('src/data/sqlite/data.db'):
     timezoneDifferenceSeconds INT,
     timeZoneDifferenceDays INT
     )""")
+    cur.execute("""CREATE TABLE reply(
+    userId INT,
+    message TEXT,
+    scheduledTime DATETIME,
+    timeZoneDifferenceSeconds INT,
+    timeZoneDifferenceDays INT,
+    tweetId VARCHAR(100),
+    sentStatus VARCHAR(20),
+    FOREIGN KEY(userId) REFERENCES user (ROWID)
+            )""")
     conn.commit()
     conn.close()

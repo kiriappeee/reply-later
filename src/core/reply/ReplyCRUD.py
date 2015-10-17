@@ -34,6 +34,7 @@ def updateReply(replyToUpdate, replyDataStrategy):
         return {"result": "success"}
 
 def cancelReply(replyToCancel, replyDataStrategy):
+    print(replyToCancel.replyId)
     if replyIsPostedAlready(replyToCancel.replyId, replyDataStrategy):
         return {"result": "error", "value": "Reply has already been sent"}
 
@@ -52,7 +53,7 @@ def getRepliesByUserId(userId, replyDataStrategy):
     return replies
 
 def getRepliesByUserIdAndStatus(userId, status, replyDataStrategy):
-    replies = replyDataStrategy.getRepliesByUserIdAndStatus(userId, status, replyDataStrategy)
+    replies = replyDataStrategy.getRepliesByUserIdAndStatus(userId, status)
     return replies
 
 def validateReply(replyToValidate):
