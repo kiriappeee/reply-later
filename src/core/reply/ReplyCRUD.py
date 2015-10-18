@@ -58,8 +58,9 @@ def getRepliesByUserIdAndStatus(userId, status, replyDataStrategy):
 
 def validateReply(replyToValidate):
     currentDateTime = datetime.now(tz=replyToValidate.timeZone)
-    if currentDateTime > replyToValidate.scheduledTime:
-        return "Scheduled time cannot be earlier than current time"
+    if replyToValidate.sentStatus == "unsent":
+        if currentDateTime > replyToValidate.scheduledTime:
+            return "Scheduled time cannot be earlier than current time"
 
 def replyIsPostedAlready(replyId, replyDataStrategy):
     replyStatus = replyDataStrategy.getReplyByReplyId(replyId).sentStatus
