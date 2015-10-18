@@ -1,0 +1,22 @@
+{% extends "common/base.html" %}
+{% block title %}Index{% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-lg-6 col-md-offset-3">
+        {% for status in mentions %}
+        <div class="row" style="margin-bottom:15px; border: 1px solid #D9D9D9; border-radius: 12px;">
+            <div class="col-lg-12">
+                <div>
+                    <p><strong>{{status.user.screen_name}}</strong></p>
+                    <p>{{status.text}}</p>
+                </div>
+                <div>
+                    <a href="{{url_for('scheduleReply')}}?id={{status.id}}">Reply</a>
+                </div>
+            </div>
+        </div>
+        {%endfor%}
+    </div>
+</div>
+{% endblock %}
+

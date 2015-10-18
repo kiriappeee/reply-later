@@ -79,7 +79,7 @@ class TestMessageSender(unittest.TestCase):
         sendReplyPatch.side_effect = [1234, 1235, 1236]
         usernameMethod.return_value = "example"
 
-        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) 
         replyToSend = Reply(1, 
                 "@example an example message that is just way too long to be kept inside a single tweet. Therefore it will be broken down into lots of little messages each having the example username on top of it. Sounds cool? Keep going! I'd really like to make this message about 3 tweets long so that I can make sure that the module is working properly. Like really well.",
                 d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
@@ -101,6 +101,7 @@ class TestMessageSender(unittest.TestCase):
         sendReplyPatch.assert_any_call(t1, 134953292, 1, mockUserDataStrategy)
         sendReplyPatch.assert_any_call(t2, 1234, 1, mockUserDataStrategy)
         sendReplyPatch.assert_any_call(t3, 1235, 1, mockUserDataStrategy)
+        self.assertTrue(mockReplyDataStrategy.updateReply.called)
 
 
     @patch.object(TweetAdapter, 'sendReply')

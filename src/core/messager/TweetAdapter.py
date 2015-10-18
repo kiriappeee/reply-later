@@ -25,3 +25,18 @@ def getApi(userId, userDataStrategy):
     auth.set_access_token(user.authToken, user.secretToken)
     api = tweepy.API(auth)
     return api
+
+def createAPIObject():
+    global PATH_TO_CONFIG
+    config = configparser.ConfigParser()
+    config.read(PATH_TO_CONFIG)
+    consumer_key = config['TOKEN']['consumerKey']
+    consumer_secret = config['TOKEN']['consumerSecret']
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    api = tweepy.API(auth)
+    return api
+
+def getMentions(userId, count, userDataStrategy):
+    api = getApi(userId, userDataStrategy)
+    mentions = api.mentions_timeline(count=count)
+    return mentions
