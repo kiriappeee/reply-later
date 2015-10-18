@@ -1,13 +1,14 @@
 from flask import session,url_for,request,redirect,render_template
 from . import application
-from .controllers import LoginController, UserController
+from .controllers import LoginController, UserController, ReplyController
 
 BASEPATH = "/replylater/app"
 
 @application.route(BASEPATH, methods=['GET'])
 def index():
     if 'userid' in session:
-        return 'hello ' + str(session['userid'])
+        mentions = ReplyController.getMentions(session['userid'])
+        return render_template('replyscheduler.html', mentions=mentions)
     else:
         redirect(url_for('login'))
 
@@ -41,3 +42,20 @@ def addtimezone():
     else:
         UserController.setTimeZone(request.form, session['userid'])
         return redirect(url_for('index'))
+
+@application.route(BASEPATH + '/reply', methods=['GET', 'POST'])
+def scheduleReply():
+    if 'userid' not in session:
+        return redirect(url_for(login))
+    if request.method == 'GET':
+        print( 'replying to ' + request.args['id'])
+        return render_template('createreply.html')
+    else:
+        print('scheduled result')
+        scheduleResult = ReplyController.createReply(request.form, request.args['id'], session['userid'])
+        print(scheduleResult)
+        if scheduleResult['result'] == 'success':
+            return redirect(url_for('index'))
+        else:
+            return "FAIL"
+

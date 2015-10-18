@@ -34,10 +34,9 @@ class TestReplyController(unittest.TestCase):
 
     @patch.object(Scheduler, 'scheduleReply')
     def test_repliesCanBeScheduled(self, scheduleReplyPatch):
-        self.assertEqual(ReplyController.createReply({"message": "@example hello world", "tweetId": '1234',
-            'year': '2015', 'month': '11', 'day': '21', 'hour': '10', 'minute': '30',
-            'tzhour': '5', 'tzminute': '30',
-            }, 1), {"result": "success", "value": 1})
+        d = datetime.now(tz=timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=2)
+        formData = dict([('message', '@example this is my first GUI based test.'), ('month', str(d.month)), ('hour', str(d.hour)), ('day', str(d.day)), ('tzminute', '30'), ('minute', str(d.minute)), ('tzhour', '5')])
+        self.assertEqual(ReplyController.createReply(formData, '12345', 1), {"result": "success", "value": 1})
         self.assertTrue(self.mockReplyDataStrategy.saveReply.called)
         self.assertTrue(scheduleReplyPatch.called)
     
