@@ -10,7 +10,7 @@ def index():
         mentions = ReplyController.getMentions(session['userid'])
         return render_template('replyscheduler.html', mentions=mentions)
     else:
-        redirect(url_for('login'))
+        return redirect(url_for('login'))
 
 @application.route(BASEPATH + '/login', methods=['GET', 'POST'])
 def login():
