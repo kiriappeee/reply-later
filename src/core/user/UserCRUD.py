@@ -25,3 +25,6 @@ def validateUser(userToValidate):
 
 def getUserById(userId, userDataStrategy):
     return userDataStrategy.getUserById(userId)
+
+def getUserByUsername(username, userDataStrategy):
+    return userDataStrategy.getUserByUsername(username)

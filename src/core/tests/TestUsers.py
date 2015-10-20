@@ -50,5 +50,26 @@ class TestUsers(unittest.TestCase):
         mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         self.assertEqual(UserCRUD.getUserById(1, mockUserDataStrategy), userToTest)
 
+    def test_userCanBeRetrievedByUsername(self):
+        mockUserDataStrategy = Mock()
+        userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
+        mockUserDataStrategyAttrs = {"getUserByUsername.return_value": userToTest
+                }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        self.assertEqual(UserCRUD.getUserByUsername('test', mockUserDataStrategy), userToTest)
+        mockUserDataStrategy.getUserByUsername.assert_called_once_with('test')
+
+    def test_userIsUpdatedInsteadOfSavingIfUserExists(self):
+        mockUserDataStrategy = Mock()
+        userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
+        userToSave = User('test', '1231lkjasd-12a', 'p99087676dsaanbwU', timezone(timedelta(hours = 5, minutes = 30)))
+        mockUserDataStrategyAttrs = {"getUserByUsername.return_value": userToTest,
+                "updateUser.return_value": True
+                }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        self.assertEqual(UserCRUD.getUserByUsername('test', mockUserDataStrategy), userToTest)
+        self.assertTrue(mockUserDataStrategy.updateUser.called)
+        mockUserDataStrategy.getUserByUsername.assert_called_once_with('test')
+
 if __name__ == "__main__":
     unittest.main()
