@@ -8,8 +8,6 @@ from ..core.user import UserCRUD
 def createUser(accessToken, accessTokenSecret):
     api = TweetAdapter.createAPIObject()
     auth = api.auth
-    print(dir(auth))
-    print(auth)
     auth.set_access_token(accessToken, accessTokenSecret)
     api = tweepy.API(auth)
     userDetails = api.me()

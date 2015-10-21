@@ -20,10 +20,12 @@ class TestUsers(unittest.TestCase):
 
     def test_validUserCanBeSaved(self):
         mockUserDataStrategy = Mock()
-        mockUserDataStrategyAttrs = {"saveUser.return_value": 1}
+        mockUserDataStrategyAttrs = {"saveUser.return_value": 1,
+                "getUserByUsername.return_value": None
+                }
         mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
-        self.assertEqual(UserCRUD.saveUser(userToTest, mockUserDataStrategy), {"result": "success", "value": 1})
+        self.assertEqual(UserCRUD.saveUser(userToTest, mockUserDataStrategy), {"result": "success", "value": 1, "updated": False})
 
     def test_invalidUserReturnsError(self):
         mockUserDataStrategy = Mock()
@@ -49,6 +51,28 @@ class TestUsers(unittest.TestCase):
                 }
         mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
         self.assertEqual(UserCRUD.getUserById(1, mockUserDataStrategy), userToTest)
+
+    def test_userCanBeRetrievedByUsername(self):
+        mockUserDataStrategy = Mock()
+        userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
+        mockUserDataStrategyAttrs = {"getUserByUsername.return_value": userToTest
+                }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        self.assertEqual(UserCRUD.getUserByUsername('test', mockUserDataStrategy), userToTest)
+        mockUserDataStrategy.getUserByUsername.assert_called_once_with('test')
+
+    def test_userIsUpdatedInsteadOfSavingIfUserExists(self):
+        mockUserDataStrategy = Mock()
+        userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
+        userToSave = User('test', '1231lkjasd-12a', 'p99087676dsaanbwU', timezone(timedelta(hours = 0, minutes = 0)))
+        mockUserDataStrategyAttrs = {"getUserByUsername.return_value": userToTest,
+                "updateUser.return_value": True
+                }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        self.assertEqual(UserCRUD.saveUser(userToSave, mockUserDataStrategy), {"result": "success", "value": 1, "updated": True})
+        self.assertTrue(mockUserDataStrategy.updateUser.called)
+        self.assertEqual(userToSave.timeZone, userToTest.timeZone)
+        mockUserDataStrategy.getUserByUsername.assert_called_once_with('test')
 
 if __name__ == "__main__":
     unittest.main()

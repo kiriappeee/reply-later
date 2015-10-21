@@ -13,6 +13,7 @@ class TestUserController(unittest.TestCase):
     def setUp(self):
         self.mockUserDataStrategy = Mock()
         self.mockUserDataStrategyAttrs = {"saveUser.return_value": 1,
+                "getUserByUsername.return_value": None,
                 "updateUser.return_value": True}
         self.mockUserDataStrategy.configure_mock(**self.mockUserDataStrategyAttrs)
         DataConfig.UserDataStrategy = self.mockUserDataStrategy
@@ -20,7 +21,7 @@ class TestUserController(unittest.TestCase):
     @patch.object(tweepy.API, 'me')
     def test_userCanBeSaved(self, mePatch):
         mePatch.return_value(TwitterUser('example'))
-        self.assertEqual(UserController.createUser('asd', '123fsd'), {"result": "success", "value": 1})
+        self.assertEqual(UserController.createUser('asd', '123fsd'), {"result": "success", "value": 1, "updated": False})
         self.assertTrue(self.mockUserDataStrategy.saveUser.called)
         self.assertTrue(mePatch.called)
 

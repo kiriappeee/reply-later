@@ -15,11 +15,11 @@ class TestSqliteUserDataStrategy(unittest.TestCase):
 
     def test_userCanBeSaved(self):
         userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
-        self.assertEqual(UserCRUD.saveUser(userToTest, UserDataStrategy), {"result": "success", "value": 1})
+        self.assertEqual(UserCRUD.saveUser(userToTest, UserDataStrategy), {"result": "success", "value": 1, "updated": False})
 
     def test_userCanBeUpdated(self):
         userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
-        self.assertEqual(UserCRUD.saveUser(userToTest, UserDataStrategy), {"result": "success", "value": 1})
+        self.assertEqual(UserCRUD.saveUser(userToTest, UserDataStrategy), {"result": "success", "value": 1, "updated": False})
         userToTest = User('test', '123456-012e1asda', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), userId = 1)
         self.assertEqual(UserCRUD.updateUser(userToTest, UserDataStrategy), {"result": "success"})
         userToTest = UserCRUD.getUserById(1, UserDataStrategy)
@@ -28,8 +28,18 @@ class TestSqliteUserDataStrategy(unittest.TestCase):
 
     def test_userCanBeRetrieved(self):
         userToSave = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
-        self.assertEqual(UserCRUD.saveUser(userToSave, UserDataStrategy), {"result": "success", "value": 1})
+        UserCRUD.saveUser(userToSave, UserDataStrategy)
         userToTest = UserCRUD.getUserById(1, UserDataStrategy)
+        self.assertEqual(userToTest.username, 'test')
+        self.assertEqual(userToTest.authToken, '123456-012e1')
+        self.assertEqual(userToTest.secretToken, '123h4123asdhh123')
+        self.assertEqual(userToTest.timeZone, timezone(timedelta(hours = 5, minutes = 30)))
+        self.assertEqual(userToTest.userId, 1)
+
+    def test_userCanBeRetrievedByUsername(self):
+        userToSave = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        UserCRUD.saveUser(userToSave, UserDataStrategy)
+        userToTest = UserCRUD.getUserByUsername('test', UserDataStrategy)
         self.assertEqual(userToTest.username, 'test')
         self.assertEqual(userToTest.authToken, '123456-012e1')
         self.assertEqual(userToTest.secretToken, '123h4123asdhh123')

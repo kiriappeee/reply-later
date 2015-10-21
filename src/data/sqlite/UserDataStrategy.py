@@ -44,15 +44,29 @@ def getUserById(userId):
     result = cur.fetchone()
     conn.close()
     if result:
-        timeZoneInformation = [result['timeZoneDifferenceDays'], result['timeZoneDifferenceSeconds']]
-        if timeZoneInformation[0] == -1:
-            tz = timezone(timedelta(seconds=result['timeZoneDifferenceSeconds'] * -1))
-        else:
-            tz = timezone(timedelta(seconds=result['timeZoneDifferenceSeconds']))
-        userToReturn = User(result['username'],
-                result['authToken'],
-                result['secretToken'],
-                tz,
-                userId = userId)
+        userToReturn = convertRowToUser(result)
         return userToReturn
 
+def getUserByUsername(username):
+    conn = sqlite3.connect('src/data/sqlite/data.db')
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("SELECT ROWID, * FROM user WHERE username=:username", {"username": username})
+    result = cur.fetchone()
+    conn.close()
+    if result:
+        userToReturn = convertRowToUser(result)
+        return userToReturn
+
+def convertRowToUser(row):
+    timeZoneInformation = [row['timeZoneDifferenceDays'], row['timeZoneDifferenceSeconds']]
+    if timeZoneInformation[0] == -1:
+        tz = timezone(timedelta(seconds=row['timeZoneDifferenceSeconds'] * -1))
+    else:
+        tz = timezone(timedelta(seconds=row['timeZoneDifferenceSeconds']))
+    userToReturn = User(row['username'],
+            row['authToken'],
+            row['secretToken'],
+            tz,
+            userId = row['ROWID'])
+    return userToReturn
