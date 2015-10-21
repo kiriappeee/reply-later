@@ -1,5 +1,8 @@
 import tweepy
+from tweepy.error import TweepError
 import configparser
+from urllib import parse
+
 from ..user import UserCRUD
 
 PATH_TO_CONFIG = 'src/tweetconfig.ini'
@@ -14,6 +17,23 @@ def sendReply(replyMessage, replyId, userId, userDataStrategy):
     tweet = api.update_status(replyMessage, replyId)
     return tweet.id
 
+def getSingleTweet(tweetIdOrUrl, userId, userDataStrategy):
+    api = getApi(userId, userDataStrategy)
+    tweetId = ""
+    if tweetIdOrUrl.find('/') == -1:
+        tweetId = tweetIdOrUrl
+    else:
+        tweetId = parse.urlparse(tweetIdOrUrl).path.split('/')[-1]
+
+    try:
+        tweetToReturn = api.get_status(tweetId)
+        return tweetToReturn
+    except TweepError as err:
+        if err.reason.find("status code = 404") > -1:
+            return "No such tweet"
+        else:
+            return err.reason
+    
 def getApi(userId, userDataStrategy):
     global PATH_TO_CONFIG
     user = UserCRUD.getUserById(userId, userDataStrategy)
