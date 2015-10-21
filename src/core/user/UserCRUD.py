@@ -2,9 +2,19 @@ def saveUser(userToSave, userDataStrategy):
     validationResult = validateUser(userToSave)
     if validationResult != {}:
         return {"result": "error", "value": validationResult}
-    saveResult = userDataStrategy.saveUser(userToSave)
-    if saveResult:
-        return {"result": "success", "value": saveResult}
+    userIfExists = getUserByUsername(userToSave.username, userDataStrategy)
+    result = None
+    updated = False
+    if userIfExists:
+        userToSave.userId = userIfExists.userId
+        userToSave.timeZone = userIfExists.timeZone
+        if userDataStrategy.updateUser(userToSave, userDataStrategy):
+            updated = True
+            result = userToSave.userId
+    else:
+        result = userDataStrategy.saveUser(userToSave)
+    if result:
+        return {"result": "success", "value": result, "updated": updated}
 
 def updateUser(userToUpdate, userDataStrategy):
     validationResult = validateUser(userToUpdate)
