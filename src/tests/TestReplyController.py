@@ -35,10 +35,16 @@ class TestReplyController(unittest.TestCase):
     @patch.object(Scheduler, 'scheduleReply')
     def test_repliesCanBeScheduled(self, scheduleReplyPatch):
         d = datetime.now(tz=timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=2)
-        formData = dict([('message', '@example this is my first GUI based test.'), ('month', str(d.month)), ('hour', str(d.hour)), ('day', str(d.day)), ('tzminute', '30'), ('minute', str(d.minute)), ('tzhour', '5')])
-        self.assertEqual(ReplyController.createReply(formData, '12345', 1), {"result": "success", "value": 1})
+        formData = dict([('message', '@example this is my first GUI based test.'), ('month', str(d.month)), ('hour', str(d.hour)), ('day', str(d.day)), ('tzminute', '30'), ('minute', str(d.minute)), ('tzhour', '5'), ('tweetId', '12345')])
+        self.assertEqual(ReplyController.createReply(formData, 1), {"result": "success", "value": 1})
         self.assertTrue(self.mockReplyDataStrategy.saveReply.called)
         self.assertTrue(scheduleReplyPatch.called)
     
+    @patch.object(TweetAdapter, 'getSingleTweet')
+    def test_singleTweetcanBeRetrieved(self, tweetPatch):
+        tweetPatch.return_value = self.mentionsToReturn[0]
+        tweetToObtain = ReplyController.getTweet("1234", 1)
+        self.assertEqual(tweetToObtain, self.mentionsToReturn[0])
+
 if __name__ == "__main__":
     unittest.main()

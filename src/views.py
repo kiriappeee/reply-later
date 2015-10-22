@@ -4,6 +4,10 @@ from .controllers import LoginController, UserController, ReplyController
 
 BASEPATH = "/replylater/app"
 
+@application.route(BASEPATH+"/clearAll", methods=['GET'])
+def clearAll():
+    session.pop('userid')
+
 @application.route(BASEPATH, methods=['GET'])
 def index():
     if 'userid' in session:
@@ -49,10 +53,10 @@ def scheduleReply():
         return redirect(url_for('login'))
     if request.method == 'GET':
         print( 'replying to ' + request.args['id'])
-        return render_template('createreply.html')
+        tweet = ReplyController.getTweet(request.args['id'], session['userid'])
+        return render_template('createreply.html',tweet = tweet)
     else:
-        print('scheduled result')
-        scheduleResult = ReplyController.createReply(request.form, request.args['id'], session['userid'])
+        scheduleResult = ReplyController.createReply(request.form, session['userid'])
         print(scheduleResult)
         if scheduleResult['result'] == 'success':
             return redirect(url_for('index'))

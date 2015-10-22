@@ -39,6 +39,23 @@ class SlowTests(unittest.TestCase):
     def test_mentionListCanBeObtained(self):
         self.assertEqual(len(TweetAdapter.getMentions(1, 30, self.mockUserDataStrategy)),30)
 
+    def test_tweetCanBeObtainedFromId(self):
+        tweet = TweetAdapter.getSingleTweet("653401595762225152", 1, self.mockUserDataStrategy)
+        self.assertEqual(tweet.text, "@kiriappeee setting up test tweet")
+        self.assertEqual(tweet.user.screen_name, "area51research")
+
+    def test_invalidTweetUrlThrowsTweepError(self):
+        self.assertRaises(tweepy.error.TweepError, TweetAdapter.getSingleTweet("6534015957622251523", 1, self.mockUserDataStrategy))
+        self.assertEqual(TweetAdapter.getSingleTweet("6534015957622251523", 1, self.mockUserDataStrategy), "No such tweet")
+
+    def test_tweetCanBeObtainedFromUrl(self):
+        tweet = TweetAdapter.getSingleTweet("https://twitter.com/area51research/status/653401595762225152", 1, self.mockUserDataStrategy)
+        self.assertEqual(tweet.text, "@kiriappeee setting up test tweet")
+        self.assertEqual(tweet.user.screen_name, "area51research")
+        tweet = TweetAdapter.getSingleTweet("twitter.com/area51research/status/653401595762225152?id=123", 1, self.mockUserDataStrategy)
+        self.assertEqual(tweet.text, "@kiriappeee setting up test tweet")
+        self.assertEqual(tweet.user.screen_name, "area51research")
+
 class FastTests(unittest.TestCase):
 
     def test_canGetGenericAPIObject(self):
