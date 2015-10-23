@@ -34,3 +34,17 @@ def getScheduledReplies(userId, status):
             timeZoneDict = {"hours": int(hours)*-1, "minutes": int(minutes)*-1}
         repliesToReturn.append({"reply": reply, "timeZoneInformation": timeZoneDict})
     return repliesToReturn
+
+def getSingleReply(userId, replyId):
+    reply = ReplyCRUD.getReplyByReplyId(replyId, DataConfig.ReplyDataStrategy)
+    if reply.userId == userId:
+        tzInfo = str(reply.timeZone)
+        if tzInfo.find('-') == -1:
+            hours, minutes = tzInfo.split('+')[1].split(':')
+            timeZoneDict = {"hours": int(hours), "minutes": int(minutes)}
+        else:
+            hours, minutes = tzInfo.split('-')[1].split(':')
+            timeZoneDict = {"hours": int(hours)*-1, "minutes": int(minutes)*-1}
+        return {"reply": reply, "timeZoneInformation": timeZoneDict}
+    else:
+        return {"reply": None, "reason": "You do not have permission to view this"}

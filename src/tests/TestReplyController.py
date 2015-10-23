@@ -38,6 +38,7 @@ class TestReplyController(unittest.TestCase):
         self.mockReplyDataStrategy = Mock()
         self.mockReplyDataStrategyAttrs = {"saveReply.return_value": 1,
                 "getRepliesByUserId.side_effect": returnReplies,
+                "getReplyByReplyId.return_value": self.repliesToReturn[1],
                 "getRepliesByUserIdAndStatus.side_effect": returnReplies }
         self.mockReplyDataStrategy.configure_mock(**self.mockReplyDataStrategyAttrs)
         DataConfig.UserDataStrategy = self.mockUserDataStrategy
@@ -81,5 +82,10 @@ class TestReplyController(unittest.TestCase):
         replies = ReplyController.getScheduledReplies(2, "sent")
         self.assertEqual(len(replies), 0)
 
+    def test_singleReplyInfoRetrieved(self):
+        reply = ReplyController.getSingleReply(1,2)
+        self.assertEqual(reply, {"reply": self.repliesToReturn[1], "timeZoneInformation": {"minutes": 30, "hours": 5}})
+        reply = ReplyController.getSingleReply(2,2)
+        self.assertEqual(reply, {"reply": None, "reason": "You do not have permission to view this"})
 if __name__ == "__main__":
     unittest.main()
