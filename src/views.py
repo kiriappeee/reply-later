@@ -1,4 +1,5 @@
 from flask import session,url_for,request,redirect,render_template
+from datetime import timedelta, datetime, timezone
 from . import application
 from .controllers import LoginController, UserController, ReplyController
 
@@ -54,7 +55,11 @@ def scheduleReply():
     if request.method == 'GET':
         print( 'replying to ' + request.args['id'])
         tweet = ReplyController.getTweet(request.args['id'], session['userid'])
-        return render_template('createreply.html',tweet = tweet)
+        userTimeZoneInfo = UserController.getUserTimeZone(session['userid'])
+        print(userTimeZoneInfo)
+        return render_template('createreply.html',tweet = tweet,
+                timeZoneInformation=userTimeZoneInfo,
+                timeToPost = datetime.now(tz=timezone(timedelta(hours=userTimeZoneInfo['hours'], minutes=userTimeZoneInfo['minutes'])))+timedelta(hours=1))
     else:
         scheduleResult = ReplyController.createReply(request.form, session['userid'])
         print(scheduleResult)

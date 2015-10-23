@@ -1,7 +1,9 @@
 import unittest
 from unittest.mock import Mock, patch
+from datetime import timedelta, timezone, datetime
 from ..controllers import UserController
 from ..core.data import DataConfig
+from ..core.user.User import User
 import tweepy
 
 class TwitterUser:
@@ -11,9 +13,11 @@ class TwitterUser:
 
 class TestUserController(unittest.TestCase):
     def setUp(self):
+        self.userToTest = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)), 1)
         self.mockUserDataStrategy = Mock()
         self.mockUserDataStrategyAttrs = {"saveUser.return_value": 1,
                 "getUserByUsername.return_value": None,
+                "getUserById.return_value": self.userToTest,
                 "updateUser.return_value": True}
         self.mockUserDataStrategy.configure_mock(**self.mockUserDataStrategyAttrs)
         DataConfig.UserDataStrategy = self.mockUserDataStrategy
@@ -31,7 +35,12 @@ class TestUserController(unittest.TestCase):
         self.assertEqual(UserController.setTimeZone(formValue, userId),{"result": "success"})
         self.assertTrue(self.mockUserDataStrategy.updateUser.called, )
 
-
+    def test_userTimezoneCanBeRetrievedAsDictionary(self):
+        userDetailsToTest = UserController.getUserTimeZone(1)
+        self.assertEqual(userDetailsToTest, {"hours": 5, "minutes": 30})
+        self.userToTest.timeZone = timezone(timedelta(hours=-5, minutes=-30))
+        userDetailsToTest = UserController.getUserTimeZone(1)
+        self.assertEqual(userDetailsToTest, {"hours": -5, "minutes": -30})
 
 if __name__ == "__main__":
     unittest.main()
