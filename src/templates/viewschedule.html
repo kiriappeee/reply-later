@@ -15,7 +15,8 @@
                 {% if replyInfo['reply'].sentStatus == 'unsent'%}
                 <div class="row">
                     <div class="col-lg-2">
-                        <form method="POST" action="">
+                        <form method="GET" action="{{url_for('updateReply')}}">
+                            <input type="hidden" value="{{replyInfo['reply'].replyId}}" name="replyid">
                             <input type="submit" class="btn btn-link" value="Edit">
                         </form>
                     </div>

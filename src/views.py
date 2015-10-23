@@ -88,3 +88,20 @@ def cancelReply():
     cancelResult = ReplyController.cancelReply(session['userid'], request.form['replyid'])
     if cancelResult['result'] == "success":
         return redirect(url_for('viewSchedule', view='unsent'))
+
+@application.route(BASEPATH + '/updatereply', methods=['GET', 'POST'])
+def updateReply():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'GET':
+        replyToUpdate = ReplyController.getSingleReply(session['userid'], request.args['replyid'])
+        tweet = ReplyController.getTweet(replyToUpdate['reply'].tweetId, session['userid'])
+        return render_template('createreply.html', tweet=tweet,
+                timeZoneInformation = replyToUpdate['timeZoneInformation'],
+                message = replyToUpdate['reply'].message,
+                timeToPost = replyToUpdate['reply'].scheduledTime,
+                replyId = replyToUpdate['reply'].replyId)
+    else:
+        updateResult = ReplyController.updateReply(session['userid'], request.form)
+        if updateResult["result"] == "success":
+            return redirect(url_for('viewSchedule'))
