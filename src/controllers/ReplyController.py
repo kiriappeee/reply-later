@@ -17,3 +17,20 @@ def createReply(replyForm, userId):
 def getTweet(tweetIdOrUrl, userId):
     tweet = TweetAdapter.getSingleTweet(tweetIdOrUrl, userId, DataConfig.UserDataStrategy)
     return tweet
+
+def getScheduledReplies(userId, status):
+    if status == "all":
+        repliesToTransform = ReplyCRUD.getRepliesByUserId(userId, DataConfig.ReplyDataStrategy)
+    else:
+        repliesToTransform = ReplyCRUD.getRepliesByUserIdAndStatus(userId, status, DataConfig.ReplyDataStrategy)
+    repliesToReturn = []
+    for reply in repliesToTransform:
+        tzInfo = str(reply.timeZone)
+        if tzInfo.find('-') == -1:
+            hours, minutes = tzInfo.split('+')[1].split(':')
+            timeZoneDict = {"hours": int(hours), "minutes": int(minutes)}
+        else:
+            hours, minutes = tzInfo.split('-')[1].split(':')
+            timeZoneDict = {"hours": int(hours)*-1, "minutes": int(minutes)*-1}
+        repliesToReturn.append({"reply": reply, "timeZoneInformation": timeZoneDict})
+    return repliesToReturn
