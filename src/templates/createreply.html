@@ -16,11 +16,16 @@
                 </div>
                 <div class="row">
                     <h3>Scheduled time</h3>
+                    <p><small><em>Note: Time is in 24 hour format</em></small></p>
                     <div class="col-lg-3">
                         <label>Hour</label>
                         <select name="hour">
                             {%for i in range(0,24)%}
-                            <option>{{i}}</option>
+                            {%if i == timeToPost.hour %}
+                            <option value="{{i}}" selected>{{i}}</option>
+                            {%else%}
+                            <option value="{{i}}">{{i}}</option>
+                            {%endif%}
                             {%endfor%}
                         </select>
                     </div>
@@ -28,7 +33,11 @@
                         <label>Minute</label>
                         <select name="minute">
                             {%for i in range(0,60)%}
-                            <option>{{i}}</option>
+                            {%if i == timeToPost.minute %}
+                            <option value="{{i}}" selected>{{i}}</option>
+                            {%else%}
+                            <option value="{{i}}">{{i}}</option>
+                            {%endif%}
                             {%endfor%}
                         </select>
                     </div>
@@ -36,7 +45,11 @@
                         <label>Month</label>
                         <select name="month">
                             {%for i in range(1,13)%}
-                            <option>{{i}}</option>
+                            {%if i == timeToPost.month %}
+                            <option value="{{i}}" selected>{{i}}</option>
+                            {%else%}
+                            <option value="{{i}}">{{i}}</option>
+                            {%endif%}
                             {%endfor%}
                         </select>
                     </div>
@@ -44,7 +57,11 @@
                         <label>Day</label>
                         <select name="day">
                             {%for i in range(1,32)%}
-                            <option>{{i}}</option>
+                            {%if i == timeToPost.day %}
+                            <option value="{{i}}" selected>{{i}}</option>
+                            {%else%}
+                            <option value="{{i}}">{{i}}</option>
+                            {%endif%}
                             {%endfor%}
                         </select>
                     </div>
@@ -55,21 +72,32 @@
                         <label>Hour</label>
                         <select name="tzhour">
                             {%for i in range(0,15)%}
-                            <option>{{i}}</option>
+                            {%if i == timeZoneInformation['hours']%}
+                            <option value="{{i}}" selected>{{i}}</option>
+                            {%else%}
+                            <option value="{{i}}">{{i}}</option>
+                            {%endif%}
                             {%endfor%}
                             {%for i in range(1,13)%}
-                            <option>-{{i}}</option>
+                            {%if i*-1 == timeZoneInformation[hours]%}
+                            <option value="{{i*-1}}" selected>{{i*-1}}</option>
+                            {%else%}
+                            <option value="{{i*-1}}" >{{i*-1}}</option>
+                            {%endif%}
                             {%endfor%}
                         </select>
                     </div>
                     <div class="col-lg-3">
                         <label>Minute</label>
                         <select name="tzminute">
-                            <option>0</option>
-                            <option>15</option>
-                            <option>30</option>
-                            <option>-15</option>
-                            <option>-30</option>
+                            {% for i in [0, 15, 30, -15, -30]%}
+                            {%if i == timeZoneInformation['minutes']%}
+                            <option value="{{i}}" selected>{{i}}</option>
+                            {% else %}
+
+                            <option value="{{i}}">{{i}}</option>
+                            {%endif%}
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
