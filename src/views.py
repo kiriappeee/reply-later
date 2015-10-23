@@ -70,4 +70,21 @@ def scheduleReply():
             return redirect(url_for('index'))
         else:
             return "FAIL"
+@application.route(BASEPATH + '/viewschedule', methods=['GET'])
+def viewSchedule():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+    if ('view') not in request.args:
+        return redirect(url_for('viewSchedule', view='unsent'))
+    if request.args['view'] != 'unsent' and request.args['view'] != 'sent' and request.args['view'] != 'cancelled':
+        return redirect(url_for('viewSchedule', view='unsent'))
+    replies = ReplyController.getScheduledReplies(session['userid'], request.args['view'])
+    return render_template('viewschedule.html', replySchedule = replies)
 
+@application.route(BASEPATH+'/cancelreply', methods=['POST'])
+def cancelReply():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+    cancelResult = ReplyController.cancelReply(session['userid'], request.form['replyid'])
+    if cancelResult['result'] == "success":
+        return redirect(url_for('viewSchedule', view='unsent'))
