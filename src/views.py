@@ -36,7 +36,10 @@ def completelogin():
         print(result)
         session['userid'] = result['value']
         print(session['userid'])
-        return redirect(url_for('addtimezone'))
+        if(result['updated']):
+            return redirect(url_for('index'))
+        else:
+            return redirect(url_for('addtimezone'))
 
 @application.route(BASEPATH + '/addtimezone', methods=['GET', 'POST'])
 def addtimezone():
