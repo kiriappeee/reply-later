@@ -8,6 +8,7 @@ from ..core.reply.Reply import Reply
 from ..core.messager import *
 from ..core.scheduler import Scheduler
 from ..core.data import DataConfig
+from ..core.scheduler import Scheduler
 
 class TestReplyController(unittest.TestCase):
     def setUp(self):
@@ -39,7 +40,8 @@ class TestReplyController(unittest.TestCase):
         self.mockReplyDataStrategyAttrs = {"saveReply.return_value": 1,
                 "getRepliesByUserId.side_effect": returnReplies,
                 "getReplyByReplyId.return_value": self.repliesToReturn[1],
-                "getRepliesByUserIdAndStatus.side_effect": returnReplies }
+                "getRepliesByUserIdAndStatus.side_effect": returnReplies,
+                "cancelReply.return_value": True}
         self.mockReplyDataStrategy.configure_mock(**self.mockReplyDataStrategyAttrs)
         DataConfig.UserDataStrategy = self.mockUserDataStrategy
         DataConfig.ReplyDataStrategy = self.mockReplyDataStrategy
@@ -87,5 +89,23 @@ class TestReplyController(unittest.TestCase):
         self.assertEqual(reply, {"reply": self.repliesToReturn[1], "timeZoneInformation": {"minutes": 30, "hours": 5}})
         reply = ReplyController.getSingleReply(2,2)
         self.assertEqual(reply, {"reply": None, "reason": "You do not have permission to view this"})
+
+    @patch.object(Scheduler, 'removeReply')
+    def test_scheduledReplyCanBeCancelled(self, removeReplyPatch):
+        self.repliesToReturn[1].scheduledTime = self.d + timedelta(minutes=10)
+        cancelResult = ReplyController.cancelReply(1,1)
+        self.assertEqual(cancelResult, {"result": "success"})
+        cancelResult = ReplyController.cancelReply(2,1)
+        self.assertEqual(cancelResult, {"result": "error", "reason": "You do not have permission to perform this action"})
+
+    @patch.object(Scheduler, 'updateReply')
+    def test_scheduledReplyCanBeUpdated(self, updateReplyPatch):
+        updatedTime = self.d + timedelta(minutes=10)
+        formData = dict([('message', '@example this is my first GUI based test.'), ('month', str(updatedTime.month)), ('hour', str(updatedTime.hour)), ('day', str(updatedTime.day)), ('tzminute', '30'), ('minute', str(updatedTime.minute)), ('tzhour', '5'), ('tweetId', '12345'), ('replyid', '1')])
+        updateResult = ReplyController.updateReply(1, formData)
+        self.assertEqual(updateResult, {"result": "success"})
+        updateResult = ReplyController.updateReply(2, formData)
+        self.assertEqual(updateResult, {"result": "error", "reason": "You do not have permission to perform this action"})
+
 if __name__ == "__main__":
     unittest.main()

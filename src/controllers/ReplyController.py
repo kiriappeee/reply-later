@@ -48,3 +48,21 @@ def getSingleReply(userId, replyId):
         return {"reply": reply, "timeZoneInformation": timeZoneDict}
     else:
         return {"reply": None, "reason": "You do not have permission to view this"}
+
+def cancelReply(userId, replyId):
+    reply = ReplyCRUD.getReplyByReplyId(replyId, DataConfig.ReplyDataStrategy)
+    if reply.userId == userId:
+        return ReplyCRUD.cancelReply(reply, DataConfig.ReplyDataStrategy)
+    else:
+        return {"result": "error", "reason": "You do not have permission to perform this action"}
+
+def updateReply(userId, replyForm):
+    reply = ReplyCRUD.getReplyByReplyId(int(replyForm['replyid']), DataConfig.ReplyDataStrategy)
+    if reply.userId == userId:
+        timeZone = timezone(timedelta(hours=int(replyForm['tzhour']), minutes=int(replyForm['tzminute'])))
+        scheduledTime = datetime(datetime.now().year, int(replyForm['month']), int(replyForm['day']), int(replyForm['hour']), int(replyForm['minute']), tzinfo = timeZone)
+        replyToUpdate = Reply(userId, replyForm['message'], scheduledTime, timeZone, replyForm['tweetId'], replyId = replyForm['replyid'])
+        return ReplyCRUD.updateReply(replyToUpdate, DataConfig.ReplyDataStrategy)
+    else:
+        return {"result": "error", "reason": "You do not have permission to perform this action"}
+
