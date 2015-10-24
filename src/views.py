@@ -46,7 +46,8 @@ def addtimezone():
     if 'userid' not in session:
         return redirect(url_for('login'))
     if request.method == 'GET':
-        return render_template('updatetimezone.html')
+        userTimeZoneInfo = UserController.getUserTimeZone(session['userid'])
+        return render_template('updatetimezone.html', timeZoneInformation = userTimeZoneInfo)
     else:
         UserController.setTimeZone(request.form, session['userid'])
         return redirect(url_for('index'))

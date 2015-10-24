@@ -2,48 +2,42 @@
 {% block title %}Login{% endblock %}
 {% block body %}
 <div class="row">
-    <h1>Edit Your Timezone</h1>
     <div class="col-lg-6 col-md-offset-3">
+    <h1>Edit Your Timezone</h1>
         <form method="POST">
+            <div class="col-lg-6">
             <label for="tzhour">Hour</label>
             <select class="form-control" name="tzhour" id="tzhour">
-                <option>0</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-                <option>6</option>
-                <option>7</option>
-                <option>8</option>
-                <option>9</option>
-                <option>10</option>
-                <option>11</option>
-                <option>12</option>
-                <option>13</option>
-                <option>14</option>
-                <option>-1</option>
-                <option>-2</option>
-                <option>-3</option>
-                <option>-4</option>
-                <option>-5</option>
-                <option>-6</option>
-                <option>-7</option>
-                <option>-8</option>
-                <option>-9</option>
-                <option>-10</option>
-                <option>-11</option>
-                <option>-12</option>
+                {%for i in range(0,15)%}
+                {%if i == timeZoneInformation['hours']%}
+                <option value="{{i}}" selected>{{i}}</option>
+                {%else%}
+                <option value="{{i}}">{{i}}</option>
+                {%endif%}
+                {%endfor%}
+                {%for i in range(1,13)%}
+                {%if i*-1 == timeZoneInformation[hours]%}
+                <option value="{{i*-1}}" selected>{{i*-1}}</option>
+                {%else%}
+                <option value="{{i*-1}}" >{{i*-1}}</option>
+                {%endif%}
+                {%endfor%}
             </select>
+            </div>
+            <div class="col-lg-6">
             <label for="tzminute">Minutes</label>
             <select class="form-control" name="tzminute" id="tzminute">
-                <option>0</option>
-                <option>15</option>
-                <option>30</option>
-                <option>-15</option>
-                <option>-30</option>
+            {% for i in [0, 15, 30, -15, -30]%}
+            {%if i == timeZoneInformation['minutes']%}
+                <option value="{{i}}" selected>{{i}}</option>
+            {% else %}
+
+                <option value="{{i}}">{{i}}</option>
+            {%endif%}
+            {% endfor %}
             </select>
-            <input type="submit" class="btn btn-primary" value="Save timezone"></input>
+            </div>
+            <input style="margin-top: 15px;" type="submit" class="btn btn-primary" value="Save timezone"></input>
         </form>
     </div>
 </div>

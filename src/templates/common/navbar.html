@@ -19,6 +19,7 @@
             <ul class="nav navbar-nav">
                 {{navlink.navlink(url_for('index'), currentUrl, "Choose Tweet To Reply To")}}
                 {{navlink.navlink(url_for('viewSchedule'), currentUrl, "View Schedule")}}
+                {{navlink.navlink(url_for('addtimezone'), currentUrl, "Change Default Timezone")}}
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <form class="navbar-form navbar-right" role="form" method="POST" action="{{url_for('logout')}}">
