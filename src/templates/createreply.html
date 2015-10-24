@@ -9,9 +9,10 @@
         </div>
         <form role="form" method="POST">
             <input type="hidden" name="tweetId" value="{{tweet.id}}">
+            {%if replyId%}<input type="hidden" name="replyid" value="{{replyId}}">{%endif%}
             <div class="row">
                 <div class="col-lg-12 form-group">
-                    <textarea id="message" rows=10 name="message" placeholder="Enter reply here" class="form-control">@{{tweet.author.screen_name}} </textarea>
+                    <textarea id="message" rows=10 name="message" placeholder="Enter reply here" class="form-control">{% if message %}{{message}}{%else%}@{{tweet.author.screen_name}}{% endif %}</textarea>
                     <p class="pull-right" id="charcount"></p>
                 </div>
                 <div class="row">

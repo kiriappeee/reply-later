@@ -70,4 +70,38 @@ def scheduleReply():
             return redirect(url_for('index'))
         else:
             return "FAIL"
+@application.route(BASEPATH + '/viewschedule', methods=['GET'])
+def viewSchedule():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+    if ('view') not in request.args:
+        return redirect(url_for('viewSchedule', view='unsent'))
+    if request.args['view'] != 'unsent' and request.args['view'] != 'sent' and request.args['view'] != 'cancelled' and request.args['view'] != 'all':
+        return redirect(url_for('viewSchedule', view='unsent'))
+    replies = ReplyController.getScheduledReplies(session['userid'], request.args['view'])
+    return render_template('viewschedule.html', replySchedule = replies)
 
+@application.route(BASEPATH+'/cancelreply', methods=['POST'])
+def cancelReply():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+    cancelResult = ReplyController.cancelReply(session['userid'], request.form['replyid'])
+    if cancelResult['result'] == "success":
+        return redirect(url_for('viewSchedule', view='unsent'))
+
+@application.route(BASEPATH + '/updatereply', methods=['GET', 'POST'])
+def updateReply():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'GET':
+        replyToUpdate = ReplyController.getSingleReply(session['userid'], request.args['replyid'])
+        tweet = ReplyController.getTweet(replyToUpdate['reply'].tweetId, session['userid'])
+        return render_template('createreply.html', tweet=tweet,
+                timeZoneInformation = replyToUpdate['timeZoneInformation'],
+                message = replyToUpdate['reply'].message,
+                timeToPost = replyToUpdate['reply'].scheduledTime,
+                replyId = replyToUpdate['reply'].replyId)
+    else:
+        updateResult = ReplyController.updateReply(session['userid'], request.form)
+        if updateResult["result"] == "success":
+            return redirect(url_for('viewSchedule'))

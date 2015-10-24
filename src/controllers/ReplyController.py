@@ -17,3 +17,52 @@ def createReply(replyForm, userId):
 def getTweet(tweetIdOrUrl, userId):
     tweet = TweetAdapter.getSingleTweet(tweetIdOrUrl, userId, DataConfig.UserDataStrategy)
     return tweet
+
+def getScheduledReplies(userId, status):
+    if status == "all":
+        repliesToTransform = ReplyCRUD.getRepliesByUserId(userId, DataConfig.ReplyDataStrategy)
+    else:
+        repliesToTransform = ReplyCRUD.getRepliesByUserIdAndStatus(userId, status, DataConfig.ReplyDataStrategy)
+    repliesToReturn = []
+    for reply in repliesToTransform:
+        tzInfo = str(reply.timeZone)
+        if tzInfo.find('-') == -1:
+            hours, minutes = tzInfo.split('+')[1].split(':')
+            timeZoneDict = {"hours": int(hours), "minutes": int(minutes)}
+        else:
+            hours, minutes = tzInfo.split('-')[1].split(':')
+            timeZoneDict = {"hours": int(hours)*-1, "minutes": int(minutes)*-1}
+        repliesToReturn.append({"reply": reply, "timeZoneInformation": timeZoneDict})
+    return repliesToReturn
+
+def getSingleReply(userId, replyId):
+    reply = ReplyCRUD.getReplyByReplyId(replyId, DataConfig.ReplyDataStrategy)
+    if reply.userId == userId:
+        tzInfo = str(reply.timeZone)
+        if tzInfo.find('-') == -1:
+            hours, minutes = tzInfo.split('+')[1].split(':')
+            timeZoneDict = {"hours": int(hours), "minutes": int(minutes)}
+        else:
+            hours, minutes = tzInfo.split('-')[1].split(':')
+            timeZoneDict = {"hours": int(hours)*-1, "minutes": int(minutes)*-1}
+        return {"reply": reply, "timeZoneInformation": timeZoneDict}
+    else:
+        return {"reply": None, "reason": "You do not have permission to view this"}
+
+def cancelReply(userId, replyId):
+    reply = ReplyCRUD.getReplyByReplyId(replyId, DataConfig.ReplyDataStrategy)
+    if reply.userId == userId:
+        return ReplyCRUD.cancelReply(reply, DataConfig.ReplyDataStrategy)
+    else:
+        return {"result": "error", "reason": "You do not have permission to perform this action"}
+
+def updateReply(userId, replyForm):
+    reply = ReplyCRUD.getReplyByReplyId(int(replyForm['replyid']), DataConfig.ReplyDataStrategy)
+    if reply.userId == userId:
+        timeZone = timezone(timedelta(hours=int(replyForm['tzhour']), minutes=int(replyForm['tzminute'])))
+        scheduledTime = datetime(datetime.now().year, int(replyForm['month']), int(replyForm['day']), int(replyForm['hour']), int(replyForm['minute']), tzinfo = timeZone)
+        replyToUpdate = Reply(userId, replyForm['message'], scheduledTime, timeZone, replyForm['tweetId'], replyId = replyForm['replyid'])
+        return ReplyCRUD.updateReply(replyToUpdate, DataConfig.ReplyDataStrategy)
+    else:
+        return {"result": "error", "reason": "You do not have permission to perform this action"}
+

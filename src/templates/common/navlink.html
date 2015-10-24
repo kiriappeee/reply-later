@@ -1,0 +1,8 @@
+{% macro navlink(url, currentUrl, text) -%}
+{% if url != url_for(currentUrl) %}
+<li><a href="{{url}}">{{text}}</a></li>
+{% else %}
+<li class="active"><a href="">{{text}} <span class="sr-only">(current)</span></a></li>
+{% endif %}
+{%- endmacro %}
+
