@@ -51,6 +51,10 @@ class TestMessageSender(unittest.TestCase):
             "@example messages each having the example username on top of it. Sounds cool? Keep going! I'd really like to make this message about 3",
             "@example tweets long so that I can make sure that the module is working properly. Like really well."])
         patchMethod.assert_any_call(134953292, 1, mockUserDataStrategy)
+        replyToSend.message = "@example testing what happens to long tweets with links. There are 50 characters here that I will insert now I'm just interested in seeing what gets truncated after 140 characters"
+        self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy),
+                ["@example testing what happens to long tweets with links. There are 50 characters here that I will insert now I'm just interested in seeing", "@example what gets truncated after 140 characters"])
+
 
         
     @patch.object(TweetAdapter, 'getUsernameForTweet')
