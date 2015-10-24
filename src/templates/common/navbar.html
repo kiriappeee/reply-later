@@ -1,0 +1,34 @@
+{% import "common/navlink.html" as navlink %}
+{% macro navbar(currentUrl) -%}
+{% if currentUrl != 'login' %}
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" style="font-family:'Serif'; font-size: 30px;" href="{{ url_for('index') }}">Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                {{navlink.navlink(url_for('index'), currentUrl, "Choose Tweet To Reply To")}}
+                {{navlink.navlink(url_for('viewSchedule'), currentUrl, "View Schedule")}}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <form class="navbar-form navbar-right" role="form" method="POST" action="">
+                    <div class="form-group">
+                        <input type="submit" value="Logout" class="btn btn-default">
+                    </div>
+                </form>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endif %}
+{%- endmacro %}

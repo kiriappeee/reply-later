@@ -76,7 +76,7 @@ def viewSchedule():
         return redirect(url_for('login'))
     if ('view') not in request.args:
         return redirect(url_for('viewSchedule', view='unsent'))
-    if request.args['view'] != 'unsent' and request.args['view'] != 'sent' and request.args['view'] != 'cancelled':
+    if request.args['view'] != 'unsent' and request.args['view'] != 'sent' and request.args['view'] != 'cancelled' and request.args['view'] != 'all':
         return redirect(url_for('viewSchedule', view='unsent'))
     replies = ReplyController.getScheduledReplies(session['userid'], request.args['view'])
     return render_template('viewschedule.html', replySchedule = replies)

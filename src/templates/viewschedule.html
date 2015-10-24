@@ -4,6 +4,14 @@
 <div class="row">
     <div class="col-lg-6 col-md-offset-3">
         <h2>View Schedule</h2>
+        <div style="margin-bottom: 20px;" class="row">
+            <div class="col-lg-12">
+                <a style="margin-right: 10px;" href="{{url_for('viewSchedule', view='cancelled')}}">Cancelled</a>
+                <a style="margin-right: 10px;" href="{{url_for('viewSchedule', view='sent')}}">Sent</a>
+                <a style="margin-right: 10px;" href="{{url_for('viewSchedule', view='unsent')}}">Unsent</a>
+                <a style="margin-right: 10px;" href="{{url_for('viewSchedule', view='all')}}">All</a>
+            </div>
+        </div>
         {% for replyInfo in replySchedule %}
         <div class="row" style="margin: 0 10px 15px 0px; border: 1px solid #D9D9D9; border-radius: 12px;">
             <div class="col-lg-12">
