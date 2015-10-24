@@ -21,7 +21,7 @@
                 {{navlink.navlink(url_for('viewSchedule'), currentUrl, "View Schedule")}}
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <form class="navbar-form navbar-right" role="form" method="POST" action="">
+                <form class="navbar-form navbar-right" role="form" method="POST" action="{{url_for('logout')}}">
                     <div class="form-group">
                         <input type="submit" value="Logout" class="btn btn-default">
                     </div>

@@ -105,3 +105,10 @@ def updateReply():
         updateResult = ReplyController.updateReply(session['userid'], request.form)
         if updateResult["result"] == "success":
             return redirect(url_for('viewSchedule'))
+
+@application.route(BASEPATH + '/logout', methods=['POST'])
+def logout():
+    if 'userid' not in session:
+        return redirect(url_for('login'))
+    session.pop('userid')
+    return redirect(url_for('login'))
