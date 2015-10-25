@@ -60,3 +60,8 @@ def getMentions(userId, count, userDataStrategy):
     api = getApi(userId, userDataStrategy)
     mentions = api.mentions_timeline(count=count)
     return mentions
+
+def getUrlLengths():
+    api = createAPIObject()
+    configValues = api.configuration()
+    return configValues['short_url_length'], configValues['short_url_length_https']

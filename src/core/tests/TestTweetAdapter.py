@@ -56,6 +56,13 @@ class SlowTests(unittest.TestCase):
         self.assertEqual(tweet.text, "@kiriappeee setting up test tweet")
         self.assertEqual(tweet.user.screen_name, "area51research")
 
+    def test_urlLengthsCanBeRetrieved(self):
+        httpUrlLength, httpsUrlLength = TweetAdapter.getUrlLengths()
+        print(httpUrlLength)
+        print(httpsUrlLength)
+        self.assertTrue(httpUrlLength >= 20)
+        self.assertTrue(httpsUrlLength >= 20)
+
 class FastTests(unittest.TestCase):
 
     def test_canGetGenericAPIObject(self):
