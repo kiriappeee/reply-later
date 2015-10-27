@@ -72,10 +72,10 @@ class TestMessageSender(unittest.TestCase):
                 "@example an example message that is just way too long to be kept inside a single tweet. It also contains a link to http://replylater.adnanissadeen.com that should become shortened. Therefore it will be broken down into lots of little messages each having the example username on top of it. Sounds cool? Keep going! Throw in one more link like https://blog.bufferapp.com/twitter-polls for good measure (also, https). I'd really like to make this message more than 3 tweets long so that I can make sure that the module is working properly. Like really well.",
                 d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
 
-        m1 = "@example an example message that is just way too long to be kept inside a single tweet. It also contains a link to http://replylater.adnanissadeen.com that should"
-        m2 = "@example become shortened. Therefore it will be broken down into lots of little messages each having the example username on top of it."
-        m3 = "@example Sounds cool? Keep going! Throw in one more link like https://blog.bufferapp.com/twitter-polls for good measure (also, https). I'd really like to make this"
-        m4 = "@example message more than 3 tweets long so that I can make sure that the module is working properly. Like really well."
+        m1 = "@example an example message that is just way too long to be kept inside a single tweet. It also contains a link to http://replylater.adnanissadeen.com"
+        m2 = "@example that should become shortened. Therefore it will be broken down into lots of little messages each having the example username on top"
+        m3 = "@example of it. Sounds cool? Keep going! Throw in one more link like https://blog.bufferapp.com/twitter-polls for good measure (also, https). I'd really like"
+        m4 = "@example to make this message more than 3 tweets long so that I can make sure that the module is working properly. Like really well."
         self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy), [m1,m2,m3,m4])
         patchMethod.assert_any_call(134953292, 1, mockUserDataStrategy)
         
