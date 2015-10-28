@@ -34,9 +34,11 @@ class TestMessageSender(unittest.TestCase):
         replyToSend = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
         self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy), ["@example an example message"])
 
+    @patch.object(TweetAdapter, 'getUrlLengths')
     @patch.object(TweetAdapter, 'getUsernameForTweet')
-    def test_messageIsBrokenDownCorrectlyWhenMoreThan140Chars(self, patchMethod):
+    def test_messageIsBrokenDownCorrectlyWhenMoreThan140Chars(self, patchMethod, urlLengthPatch):
         patchMethod.return_value = "example"
+        urlLengthPatch.return_value = (23,23)
         
         user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
         mockUserDataStrategy = Mock()
@@ -55,12 +57,34 @@ class TestMessageSender(unittest.TestCase):
         self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy),
                 ["@example testing what happens to long tweets with links. There are 50 characters here that I will insert now I'm just interested in seeing", "@example what gets truncated after 140 characters"])
 
-
+    @patch.object(TweetAdapter, 'getUrlLengths')
+    @patch.object(TweetAdapter, 'getUsernameForTweet')
+    def test_messageIsBrokenDownCorrectlyWhenMoreThan140CharsAndContainsLinks(self, patchMethod, urlLengthPatch):
+        patchMethod.return_value = "example"
+        urlLengthPatch.return_value = (23,23)
         
+        user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"getUserById.return_value": user }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replyToSend = Reply(1, 
+                "@example an example message that is just way too long to be kept inside a single tweet. It also contains a link to http://replylater.adnanissadeen.com that should become shortened. Therefore it will be broken down into lots of little messages each having the example username on top of it. Sounds cool? Keep going! Throw in one more link like https://blog.bufferapp.com/twitter-polls for good measure (also, https). I'd really like to make this message more than 3 tweets long so that I can make sure that the module is working properly. Like really well.",
+                d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
+
+        m1 = "@example an example message that is just way too long to be kept inside a single tweet. It also contains a link to http://replylater.adnanissadeen.com"
+        m2 = "@example that should become shortened. Therefore it will be broken down into lots of little messages each having the example username on top"
+        m3 = "@example of it. Sounds cool? Keep going! Throw in one more link like https://blog.bufferapp.com/twitter-polls for good measure (also, https). I'd really like"
+        m4 = "@example to make this message more than 3 tweets long so that I can make sure that the module is working properly. Like really well."
+        self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy), [m1,m2,m3,m4])
+        patchMethod.assert_any_call(134953292, 1, mockUserDataStrategy)
+        
+    @patch.object(TweetAdapter, 'getUrlLengths')
     @patch.object(TweetAdapter, 'getUsernameForTweet')
     @patch.object(TweetAdapter, 'sendReply')
-    def test_messageIsSentCorrectlyWhenUnder140Chars(self, sendReplyPatch, usernameMethod):
+    def test_messageIsSentCorrectlyWhenUnder140Chars(self, sendReplyPatch, usernameMethod, urlLengthPatch):
         sendReplyPatch.side_effect = [1234]
+        urlLengthPatch.return_value = (23,23)
         usernameMethod.return_value = "example"
         d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
         replyToSend = Reply(1, "@example an example message", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
@@ -77,10 +101,12 @@ class TestMessageSender(unittest.TestCase):
         usernameMethod.assert_not_called()
         sendReplyPatch.assert_called_once_with("@example an example message", 134953292, 1, mockUserDataStrategy)
 
+    @patch.object(TweetAdapter, 'getUrlLengths')
     @patch.object(TweetAdapter, 'getUsernameForTweet')
     @patch.object(TweetAdapter, 'sendReply')
-    def test_messageIsSentCorrectlyWhenOver140Chars(self, sendReplyPatch, usernameMethod):
+    def test_messageIsSentCorrectlyWhenOver140Chars(self, sendReplyPatch, usernameMethod, urlLengthPatch):
         sendReplyPatch.side_effect = [1234, 1235, 1236]
+        urlLengthPatch.return_value = (23,23)
         usernameMethod.return_value = "example"
 
         d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) 

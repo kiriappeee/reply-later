@@ -45,8 +45,9 @@ class SlowTests(unittest.TestCase):
         self.assertEqual(tweet.user.screen_name, "area51research")
 
     def test_invalidTweetUrlThrowsTweepError(self):
-        self.assertRaises(tweepy.error.TweepError, TweetAdapter.getSingleTweet("6534015957622251523", 1, self.mockUserDataStrategy))
-        self.assertEqual(TweetAdapter.getSingleTweet("6534015957622251523", 1, self.mockUserDataStrategy), "No such tweet")
+        tweetObject = TweetAdapter.getSingleTweet("6534015957622251523", 1, self.mockUserDataStrategy)
+        print(tweetObject)
+        self.assertEqual(tweetObject, "No such tweet")
 
     def test_tweetCanBeObtainedFromUrl(self):
         tweet = TweetAdapter.getSingleTweet("https://twitter.com/area51research/status/653401595762225152", 1, self.mockUserDataStrategy)
@@ -55,6 +56,13 @@ class SlowTests(unittest.TestCase):
         tweet = TweetAdapter.getSingleTweet("twitter.com/area51research/status/653401595762225152?id=123", 1, self.mockUserDataStrategy)
         self.assertEqual(tweet.text, "@kiriappeee setting up test tweet")
         self.assertEqual(tweet.user.screen_name, "area51research")
+
+    def test_urlLengthsCanBeRetrieved(self):
+        httpUrlLength, httpsUrlLength = TweetAdapter.getUrlLengths()
+        print(httpUrlLength)
+        print(httpsUrlLength)
+        self.assertTrue(httpUrlLength >= 20)
+        self.assertTrue(httpsUrlLength >= 20)
 
 class FastTests(unittest.TestCase):
 
