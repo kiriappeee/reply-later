@@ -1,9 +1,13 @@
 {% extends "common/base.html" %}
 {% block title %}Login{% endblock %}
+{% block head %}{{super()}}
+<script src="{{url_for('static', filename='gettimezone.js')}}"></script>
+{% endblock %}
 {% block body %}
 <div class="row">
     <div class="col-lg-6 col-md-offset-3">
     <h1>Edit Your Timezone</h1>
+        <p id="nondefault" class="text-info"></p>
         <form method="POST">
             <div class="col-lg-6">
             <label for="tzhour">Hour</label>
@@ -27,7 +31,7 @@
             <div class="col-lg-6">
             <label for="tzminute">Minutes</label>
             <select class="form-control" name="tzminute" id="tzminute">
-            {% for i in [0, 15, 30, -15, -30]%}
+            {% for i in [0, 15, 30, 45, -15, -30, -45]%}
             {%if i == timeZoneInformation['minutes']%}
                 <option value="{{i}}" selected>{{i}}</option>
             {% else %}
@@ -41,4 +45,19 @@
         </form>
     </div>
 </div>
+<script>
+tzInfo = getTimezoneInfo();
+nonDefault = false;
+if($('#tzhour').val() != tzInfo.hours){
+    $('#tzhour').val(tzInfo.hours);
+    nonDefault = true;
+}
+if($('#tzminute').val() != tzInfo.minutes){
+    $('#tzminute').val(tzInfo.minutes);
+    nonDefault = true;
+}
+if (nonDefault){
+    $('#nondefault').html("Hi! We've automatically selected your timezone based on your current time.<br>You can go ahead and change it if it isn't right and press save when done");
+}
+</script>
 {% endblock %}
