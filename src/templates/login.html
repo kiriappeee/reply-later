@@ -1,12 +1,22 @@
 {% extends "common/base.html" %}
 {% block title %}Login{% endblock %}
+{% block head %}{{super()}}
+<script src="{{url_for('static', filename='gettimezone.js')}}"></script>
+{% endblock %}
 {% block body %}
 <div class="row">
     <div class="col-lg-6 col-md-offset-3">
         <h1>Login to Reply Later</h1>
         <form method="POST">
+            <input type="hidden" value="" name="hours" id="hours">
+            <input type="hidden" value="" name="minutes" id="minutes">
             <input type="submit" class="btn btn-primary" value="Sign In Wtih Twitter">
         </form>
     </div>
 </div>
+<script>
+tzInfo = getTimezoneInfo();
+$('#hours').val(tzInfo.hours);
+$('#minutes').val(tzInfo.minutes);
+</script>
 {% endblock %}

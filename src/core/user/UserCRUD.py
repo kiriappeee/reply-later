@@ -7,7 +7,6 @@ def saveUser(userToSave, userDataStrategy):
     updated = False
     if userIfExists:
         userToSave.userId = userIfExists.userId
-        userToSave.timeZone = userIfExists.timeZone
         if updateUser(userToSave, userDataStrategy):
             updated = True
             result = userToSave.userId

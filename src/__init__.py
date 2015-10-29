@@ -1,5 +1,5 @@
 from flask import Flask
-application=Flask(__name__)
+application=Flask(__name__, static_url_path='/replylater/app/static')
 
 import configparser
 from . import views

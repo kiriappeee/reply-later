@@ -5,11 +5,7 @@ from .controllers import LoginController, UserController, ReplyController
 
 BASEPATH = "/replylater/app"
 
-@application.route(BASEPATH+"/clearAll", methods=['GET'])
-def clearAll():
-    session.pop('userid')
-
-@application.route(BASEPATH, methods=['GET'])
+@application.route(BASEPATH+'/', methods=['GET'])
 def index():
     if 'userid' in session:
         mentions = ReplyController.getMentions(session['userid'])
@@ -17,31 +13,32 @@ def index():
     else:
         return redirect(url_for('login'))
 
-@application.route(BASEPATH + '/login', methods=['GET', 'POST'])
+@application.route(BASEPATH + '/login/', methods=['GET', 'POST'])
 def login():
     if 'userid' in session:
         return redirect(url_for('index'))
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method == 'POST':
+        session['hoursforregister'] = request.form.get('hours')
+        session['minutesforregister'] = request.form.get('minutes')
         return redirect(LoginController.getStartingUrl())
 
-@application.route(BASEPATH + '/completelogin', methods=['GET'])
+@application.route(BASEPATH + '/completelogin/', methods=['GET'])
 def completelogin():
     if 'denied' in request.args:
         return "DENIEEED"
     else:
         accessToken, accessTokenSecret = LoginController.getAuth(request.args.get('oauth_verifier'), request.args.get('oauth_token'))
-        result = UserController.createUser(accessToken, accessTokenSecret)
+        result = UserController.createUser(accessToken, accessTokenSecret, session.get('hoursforregister'), session.get('minutesforregister'))
+        session.pop('hoursforregister')
+        session.pop('minutesforregister')
         print(result)
         session['userid'] = result['value']
         print(session['userid'])
-        if(result['updated']):
-            return redirect(url_for('index'))
-        else:
-            return redirect(url_for('addtimezone'))
+        return redirect(url_for('index'))
 
-@application.route(BASEPATH + '/addtimezone', methods=['GET', 'POST'])
+@application.route(BASEPATH + '/addtimezone/', methods=['GET', 'POST'])
 def addtimezone():
     if 'userid' not in session:
         return redirect(url_for('login'))
@@ -52,7 +49,7 @@ def addtimezone():
         UserController.setTimeZone(request.form, session['userid'])
         return redirect(url_for('index'))
 
-@application.route(BASEPATH + '/reply', methods=['GET', 'POST'])
+@application.route(BASEPATH + '/reply/', methods=['GET', 'POST'])
 def scheduleReply():
     if 'userid' not in session:
         return redirect(url_for('login'))
@@ -71,7 +68,7 @@ def scheduleReply():
             return redirect(url_for('index'))
         else:
             return "FAIL"
-@application.route(BASEPATH + '/viewschedule', methods=['GET'])
+@application.route(BASEPATH + '/viewschedule/', methods=['GET'])
 def viewSchedule():
     if 'userid' not in session:
         return redirect(url_for('login'))
@@ -82,7 +79,7 @@ def viewSchedule():
     replies = ReplyController.getScheduledReplies(session['userid'], request.args['view'])
     return render_template('viewschedule.html', replySchedule = replies)
 
-@application.route(BASEPATH+'/cancelreply', methods=['POST'])
+@application.route(BASEPATH+'/cancelreply/', methods=['POST'])
 def cancelReply():
     if 'userid' not in session:
         return redirect(url_for('login'))
@@ -90,7 +87,7 @@ def cancelReply():
     if cancelResult['result'] == "success":
         return redirect(url_for('viewSchedule', view='unsent'))
 
-@application.route(BASEPATH + '/updatereply', methods=['GET', 'POST'])
+@application.route(BASEPATH + '/updatereply/', methods=['GET', 'POST'])
 def updateReply():
     if 'userid' not in session:
         return redirect(url_for('login'))
@@ -107,7 +104,7 @@ def updateReply():
         if updateResult["result"] == "success":
             return redirect(url_for('viewSchedule'))
 
-@application.route(BASEPATH + '/logout', methods=['POST'])
+@application.route(BASEPATH + '/logout/', methods=['POST'])
 def logout():
     if 'userid' not in session:
         return redirect(url_for('login'))
