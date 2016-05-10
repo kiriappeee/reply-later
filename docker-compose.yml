@@ -1,0 +1,11 @@
+nginx:
+  image: nginx
+  volumes:
+    - ./.docker-files/nginx/:/etc/nginx/conf.d
+  ports:
+   - "80:80"
+  links:
+   - replylater
+
+replylater:
+  build: .
