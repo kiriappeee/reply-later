@@ -22,7 +22,7 @@ def breakMessage(messageToBreak, tweetId, userId, userDataStrategy):
 
         else:
             if messageToBreak.rstrip() != "@%s"%(username):
-                splitMessageList.append(messageToBreak.rstrip())
+                splitMessageList.append(transformShortUrlsBackToOriginalLinks(messageToBreak.rstrip(), urls[:])[0])
             break
     return splitMessageList
 
