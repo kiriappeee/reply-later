@@ -1,0 +1,4 @@
+replylater:
+  volumes:
+    - .:/app
+  command: python serverstart.py --debug

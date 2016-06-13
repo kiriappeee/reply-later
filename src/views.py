@@ -3,7 +3,7 @@ from datetime import timedelta, datetime, timezone
 from . import application
 from .controllers import LoginController, UserController, ReplyController
 
-BASEPATH = "/replylater/app"
+BASEPATH = ""
 
 @application.route(BASEPATH+'/', methods=['GET'])
 def index():
