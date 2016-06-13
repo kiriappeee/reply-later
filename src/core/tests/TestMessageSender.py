@@ -36,6 +36,19 @@ class TestMessageSender(unittest.TestCase):
 
     @patch.object(TweetAdapter, 'getUrlLengths')
     @patch.object(TweetAdapter, 'getUsernameForTweet')
+    def test_messageIsBrokenDownCorrectlyBeforeSendingWhenContainingLinks(self, patchMethod, urlLengthPatch):
+        user = User('test', '123456-012e1', '123h4123asdhh123', timezone(timedelta(hours = 5, minutes = 30)))
+        patchMethod.return_value = "example"
+        urlLengthPatch.return_value = (23,23)
+        mockUserDataStrategy = Mock()
+        mockUserDataStrategyAttrs = {"getUserById.return_value": user }
+        mockUserDataStrategy.configure_mock(**mockUserDataStrategyAttrs)
+        d = datetime.now(tz = timezone(timedelta(hours=5, minutes=30))) + timedelta(minutes=20)
+        replyToSend = Reply(1, "... Facebook biased - when did people give up on the process of getting informed? http://blog.theoldreader.com/post/144197778539/facebook-biased via @theoldreader", d, timezone(timedelta(hours=5, minutes=30)), 134953292, replyId = 1)
+        self.assertEqual(MessageBreaker.breakMessage(replyToSend.message, replyToSend.tweetId, 1, mockUserDataStrategy), ["... Facebook biased - when did people give up on the process of getting informed? http://blog.theoldreader.com/post/144197778539/facebook-biased via @theoldreader"])
+        
+    @patch.object(TweetAdapter, 'getUrlLengths')
+    @patch.object(TweetAdapter, 'getUsernameForTweet')
     def test_messageIsBrokenDownCorrectlyWhenMoreThan140Chars(self, patchMethod, urlLengthPatch):
         patchMethod.return_value = "example"
         urlLengthPatch.return_value = (23,23)
